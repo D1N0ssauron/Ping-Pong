@@ -34,12 +34,17 @@ const linha = {
 // obj Raquete Esquerda
 const raqueteEsquerda = {
   x: 10,
-  y: 400,
+  y: 0,
   w: lineWidth,
   h: 200,
+  _move: function () {
+    this.y = mouse.y - this.h / 2;
+  },
   draw: function () {
     //Desenha a raquete 1
     canvasCtx.fillRect(this.x, this.y, this.w, this.h);
+
+    this._move();
   },
 };
 
@@ -92,6 +97,9 @@ const placar = {
   },
 };
 
+//obj mouse
+const mouse = { x: 0, y: 0 };
+
 function setup() {
   // Aqui vou setar o tamanho do Canvas, tanto o El quanto o Ctx
   // Coloquei o El recebendo o Ctx para facilitar o código
@@ -109,9 +117,29 @@ function draw() {
   placar.draw();
 }
 
-// Lembrando de chamar as funcs
-setup();
-draw();
+//Para melhorar as animações
+window.animateFrame = (function () {
+  return (
+    window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function (callback) {
+      return window.setTimeout(callback, 1000 / 60);
+    }
+  );
+})();
 
-//Pra definir tempo/velocidade
-window.setInterval(draw, 1000 / 60);
+function main() {
+  animateFrame(main);
+  draw();
+}
+
+setup();
+main();
+
+canvasEl.addEventListener("mousemove", function (e) {
+  mouse.x = e.pageX;
+  mouse.y = e.pageY;
+});
