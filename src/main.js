@@ -5,34 +5,34 @@ const canvasEl = document.querySelector("canvas"),
 const lineWidth = 15;
 
 // obj Campo
-const campo = {
-  //Aqui temos duas propriedades e um método que fizemos para criar o Obj campo
+const field = {
+  //Aqui temos duas propriedades e um método que fizemos para criar o Obj field
   w: window.innerWidth,
   h: window.innerHeight,
   draw: function () {
     // Primeiro definimos cor e depois dimensão
     //Depois vai o posicionamento (x, y, largura, altura)
-    // Desenha o campo
+    // Desenha o field
     canvasCtx.fillStyle = "#286047";
     canvasCtx.fillRect(0, 0, this.w, this.h);
   },
 };
 
-// obj Linha
-const linha = {
+// obj line
+const line = {
   w: lineWidth,
-  h: campo.h,
+  h: field.h,
   draw: function () {
     // Primeiro definimos cor e depois dimensão
     //Depois vai o posicionamento (x, y, largura, altura)
-    // Desenha a linha central
+    // Desenha a line central
     canvasCtx.fillStyle = "#D9D9D9"; //Por conta desta, tudo que colocar a partir daqui vai ter esta cor
-    canvasCtx.fillRect(campo.w / 2 - this.w / 2, 0, this.w, this.h);
+    canvasCtx.fillRect(field.w / 2 - this.w / 2, 0, this.w, this.h);
   },
 };
 
 // obj Raquete Esquerda
-const raqueteEsquerda = {
+const leftPaddle = {
   x: 10,
   y: 0,
   w: lineWidth,
@@ -49,13 +49,13 @@ const raqueteEsquerda = {
 };
 
 // obj Raquete Direita
-const raqueteDireita = {
-  x: campo.w - lineWidth - 10,
+const rightPaddle = {
+  x: field.w - lineWidth - 10,
   y: 200,
   w: lineWidth,
   h: 200,
   _move: function () {
-    this.y = bola.y;
+    this.y = ball.y;
   },
   draw: function () {
     //Desenha a raquete 2
@@ -66,20 +66,56 @@ const raqueteDireita = {
 };
 
 // obj Bola
-const bola = {
-  x: 500,
-  y: 100,
+const ball = {
+  x: 0,
+  y: 0,
   r: 20,
-  velo: 5,
-  direcaoY: 1,
-  direcaoX: 1,
-  _rebate: function () {
-    if (this.y > campo.h) {
+  speed: 5,
+  directionY: 1,
+  directionX: 1,
+  _calcPosition: function () {
+    // Verifica as laterais y do field
+    if (
+      (this.y - this.r < 0 && this.directionY < 0) ||
+      (this.y > field.h - this.r && this.directionY > 0)
+    ) {
+      // rebate a bola
+      this._reverseY();
+    }
+
+    // Verifica se x é maior que a tela, ou seja, fez ponto ?
+    if (this.x > field.w - this.r - rightPaddle.w - 10) {
+      //Verifica se a raquete rebate ou não
+      if (
+        this.y + this.r > rightPaddle.y &&
+        this.y - this.r < rightPaddle.y + rightPaddle.h
+      ) {
+        // rebate
+        this._reverseX();
+      } else {
+        // Pontua player 1
+        score.increaseHuman();
+        this._pointUp();
+      }
     }
   },
+  _reverseY: function () {
+    // 1 x -1 = -1   math básica né pae
+    // -1 x -1 = 1
+    this.directionY = this.directionY * -1;
+  },
+  _reverseX: function () {
+    // 1 x -1 = -1   math básica né pae
+    // -1 x -1 = 1
+    this.directionX = this.directionX * -1;
+  },
+  _pointUp: function () {
+    this.x = field.w / 2;
+    this.y = field.h / 2;
+  },
   _move: function () {
-    this.x += this.direcaoX * this.velo;
-    this.y += this.direcaoY * this.velo;
+    this.x += this.directionX * this.speed;
+    this.y += this.directionY * this.speed;
   },
   draw: function () {
     //Desenhando a bolinha
@@ -88,14 +124,21 @@ const bola = {
     canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
     canvasCtx.fill();
 
+    this._calcPosition();
     this._move();
   },
 };
 
 // obj Placar
-const placar = {
-  humano: "3",
-  computador: "1",
+const score = {
+  human: 0,
+  bot: 0,
+  increaseHuman: function () {
+    this.human++;
+  },
+  increaseBot: function () {
+    this.bot++;
+  },
   draw: function () {
     // Desenhando o Placar
     canvasCtx.font = "bold 72px Arial";
@@ -103,8 +146,8 @@ const placar = {
     canvasCtx.textBaseline = "Top";
     canvasCtx.fillStyle = "#01351D";
     //string, x: number, y: number
-    canvasCtx.fillText(this.humano, campo.w / 4, 100);
-    canvasCtx.fillText(this.computador, campo.w / 4 + campo.w / 2, 100);
+    canvasCtx.fillText(this.human, field.w / 4, 100);
+    canvasCtx.fillText(this.bot, field.w / 4 + field.w / 2, 100);
   },
 };
 
@@ -120,12 +163,12 @@ function setup() {
 
 // Aqui será basicamente para desenhar
 function draw() {
-  campo.draw();
-  linha.draw();
-  raqueteEsquerda.draw();
-  raqueteDireita.draw();
-  bola.draw();
-  placar.draw();
+  field.draw();
+  line.draw();
+  leftPaddle.draw();
+  rightPaddle.draw();
+  ball.draw();
+  score.draw();
 }
 
 //Para melhorar as animações
