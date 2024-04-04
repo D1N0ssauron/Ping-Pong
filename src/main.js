@@ -54,9 +54,14 @@ const raqueteDireita = {
   y: 200,
   w: lineWidth,
   h: 200,
+  _move: function () {
+    this.y = bola.y;
+  },
   draw: function () {
     //Desenha a raquete 2
     canvasCtx.fillRect(this.x, this.y, this.w, this.h);
+
+    this._move();
   },
 };
 
@@ -66,9 +71,15 @@ const bola = {
   y: 100,
   r: 20,
   velo: 5,
+  direcaoY: 1,
+  direcaoX: 1,
+  _rebate: function () {
+    if (this.y > campo.h) {
+    }
+  },
   _move: function () {
-    this.x += this.velo;
-    this.y += this.velo;
+    this.x += this.direcaoX * this.velo;
+    this.y += this.direcaoY * this.velo;
   },
   draw: function () {
     //Desenhando a bolinha
@@ -139,6 +150,7 @@ function main() {
 setup();
 main();
 
+// Isso aqui serve basicamente para a raquete seguir o mouse
 canvasEl.addEventListener("mousemove", function (e) {
   mouse.x = e.pageX;
   mouse.y = e.pageY;
