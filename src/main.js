@@ -98,6 +98,21 @@ const ball = {
         this._pointUp();
       }
     }
+
+    //Verifica se player 2 fez ponto
+    if (this.x < this.r + leftPaddle.w + 10) {
+      //verifica se a raquete esquerda rebate a bola
+      if (
+        this.y + this.r > leftPaddle.y &&
+        this.y - this.r < leftPaddle.y + leftPaddle.h
+      ) {
+        this._reverseX(); //rebate a bola
+      } else {
+        //Pontua p2
+        score.increaseBot();
+        this._pointUp();
+      }
+    }
   },
   _reverseY: function () {
     // 1 x -1 = -1   math básica né pae
